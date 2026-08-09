@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ahmad SMS CDR Dashboard</title>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--text:#172033;--muted:#718096;--line:#e6eaf0;--primary:#2563eb;--sidebar:#111827;--success:#16a34a;--warning:#d97706;--danger:#dc2626}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}.layout{display:flex;min-height:100vh}.sidebar{width:245px;background:var(--sidebar);color:#fff;padding:22px 14px;position:fixed;inset:0 auto 0 0;z-index:5}
+.brand{font-size:20px;font-weight:900;padding:8px 12px 24px}.brand span{color:#60a5fa}.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:#cbd5e1;text-align:left;padding:12px 13px;border-radius:9px;cursor:pointer}.nav button:hover,.nav button.active{background:#1f2937;color:#fff}.main{margin-left:245px;width:calc(100% - 245px)}.topbar{height:70px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:4}.topbar h1{font-size:19px;margin:0}.user{font-weight:800}.content{padding:28px}.view{display:none}.view.active{display:block}.grid{display:grid;gap:18px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 5px 18px #0f172a08}.stat{display:flex;justify-content:space-between;align-items:center}.stat small{color:var(--muted)}.stat strong{font-size:27px;display:block;margin-top:6px}.stat .ico{font-size:28px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:25px 0 14px}.section-head h2{font-size:18px;margin:0}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:800}.primary{background:var(--primary);color:white}.light{background:#eef2ff;color:#1e40af}.danger{background:#fee2e2;color:#991b1b}.filters{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:10px}.field{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;outline:none;width:100%}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.table{width:100%;border-collapse:collapse;min-width:900px}.table th,.table td{padding:13px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.table th{background:#f8fafc;color:#64748b;font-size:12px;text-transform:uppercase}.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:900}.success{background:#dcfce7;color:#166534}.pending{background:#fef3c7;color:#92400e}.failed{background:#fee2e2;color:#991b1b}.info{background:#dbeafe;color:#1d4ed8}.chart{height:250px;display:flex;align-items:end;gap:12px;padding:20px 10px 5px}.bar{flex:1;background:#3b82f6;border-radius:6px 6px 0 0;min-height:20px;position:relative}.bar span{position:absolute;top:-21px;width:100%;text-align:center;font-size:11px;color:var(--muted)}.two{grid-template-columns:1.4fr 1fr}.menu-toggle{display:none}.empty{padding:35px;text-align:center;color:var(--muted)}.notice{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:12px;border-radius:10px;font-size:13px;margin-bottom:18px}
+@media(max-width:900px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:none}.main{margin-left:0;width:100%}.menu-toggle{display:block;background:transparent;border:0;font-size:22px}.topbar{padding:0 16px}.content{padding:18px}.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.filters .search{grid-column:1/-1}}
+@media(max-width:560px){.stats{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.filters .search{grid-column:auto}.section-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">Ahmad <span>Panel</span></div>
+  <div class="nav">
+    <button class="active" data-view="dashboard">📊 Dashboard</button>
+    <button data-view="sms">💬 SMS CDR Reports</button>
+    <button data-view="api-connect">🔌 API Connection</button>
+    <button data-view="numbers">📱 Numbers</button>
+    <button data-view="agents">👥 Agents</button>
+    <button data-view="reports">📈 Reports</button>
+    <button data-view="users">🔐 Users</button>
+    <button data-view="settings">⚙️ Settings</button>
+  </div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div><button class="menu-toggle" onclick="toggleMenu()">☰</button> <h1 id="pageTitle" style="display:inline-block">Dashboard</h1></div>
+  <div class="user">Admin ▾</div>
+</header>
+
+<div class="content">
+
+<section id="dashboard" class="view active">
+  <div class="notice">Demo dashboard — sample records are shown locally. Connect your own authorized SMS provider/database for live CDR data.</div>
+  <div class="grid stats">
+    <div class="card stat"><div><small>Total Messages</small><strong id="statTotal">1,248</strong></div><div class="ico">💬</div></div>
+    <div class="card stat"><div><small>Delivered</small><strong id="statDelivered">1,108</strong></div><div class="ico">✅</div></div>
+    <div class="card stat"><div><small>Pending</small><strong id="statPending">86</strong></div><div class="ico">⏳</div></div>
+    <div class="card stat"><div><small>Failed</small><strong id="statFailed">54</strong></div><div class="ico">❌</div></div>
+  </div>
+
+  <div class="grid two" style="margin-top:18px">
+    <div class="card">
+      <div class="section-head"><h2>Message Activity</h2><select class="field" style="width:auto"><option>Last 7 days</option><option>Last 30 days</option></select></div>
+      <div class="chart">
+        <div class="bar" style="height:55%"><span>Mon</span></div><div class="bar" style="height:72%"><span>Tue</span></div>
+        <div class="bar" style="height:48%"><span>Wed</span></div><div class="bar" style="height:88%"><span>Thu</span></div>
+        <div class="bar" style="height:64%"><span>Fri</span></div><div class="bar" style="height:78%"><span>Sat</span></div><div class="bar" style="height:92%"><span>Sun</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-head"><h2>Delivery Overview</h2></div>
+      <p>Delivered <b style="float:right">88.8%</b></p><div style="height:9px;background:#e5e7eb;border-radius:9px"><div style="width:89%;height:100%;background:#16a34a;border-radius:9px"></div></div>
+      <p>Pending <b style="float:right">6.9%</b></p><div style="height:9px;background:#e5e7eb;border-radius:9px"><div style="width:7%;height:100%;background:#d97706;border-radius:9px"></div></div>
+      <p>Failed <b style="float:right">4.3%</b></p><div style="height:9px;background:#e5e7eb;border-radius:9px"><div style="width:4.3%;height:100%;background:#dc2626;border-radius:9px"></div></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="api-connect" class="view">
+  <div class="section-head">
+    <div><h2>🔌 API Connection</h2><small style="color:var(--muted)">Configure your authorized AstraSMS viewstats endpoint.</small></div>
+  </div>
+  <div class="card">
+    <div class="notice">Your token is not hard-coded into this file. Enter it only when you need to test the API. For production, use a secure server-side proxy instead of exposing the token in a public GitHub Pages site.</div>
+    <div class="filters" style="grid-template-columns:1fr 1fr">
+      <div><label>API URL</label><input class="field" id="apiUrl" value="https://astrasms.com/api/viewstats"></div>
+      <div><label>Method</label><select class="field" id="apiMethod"><option>GET</option><option>POST</option></select></div>
+      <div><label>API Token</label><input class="field" id="apiToken" type="password" placeholder="Enter token (not saved)"></div>
+      <div><label>Records</label><input class="field" id="apiRecords" type="number" min="1" max="1000" value="10"></div>
+      <div><label>From (dt1)</label><input class="field" id="apiDt1" type="datetime-local"></div>
+      <div><label>To (dt2)</label><input class="field" id="apiDt2" type="datetime-local"></div>
+      <div><label>Filter Number</label><input class="field" id="apiFilterNum" placeholder="Optional number"></div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" onclick="testStatsAPI()">🔄 Load Live Stats</button>
+      <button class="btn light" onclick="clearApiToken()">Clear Token</button>
+    </div>
+    <pre id="apiResult" style="margin-top:15px;background:#0b1120;color:#d1fae5;padding:15px;border-radius:10px;overflow:auto;max-height:360px">API result will appear here.</pre>
+  </div>
+</section>
+<section id="sms" class="view">
+  <div class="section-head"><div><h2>SMS CDR Reports</h2><small style="color:var(--muted)">Search, filter and export authorized records • Live API via API Connection</small></div><div class="actions"><button class="btn light" onclick="exportCSV()">⬇ Export CSV</button></div></div>
+  <div class="card">
+    <div class="filters">
+      <input class="field search" id="q" placeholder="🔍 Search number, sender, status..." oninput="filterRows()">
+      <input class="field" id="from" type="date" onchange="filterRows()"><input class="field" id="to" type="date" onchange="filterRows()">
+      <select class="field" id="status" onchange="filterRows()"><option value="">All Status</option><option>Delivered</option><option>Pending</option><option>Failed</option></select>
+      <button class="btn light" onclick="resetFilters()">Reset</button>
+    </div>
+    <div class="table-wrap" style="margin-top:15px"><table class="table"><thead><tr><th>Date/Time</th><th>Number</th><th>Sender</th><th>Message</th><th>Status</th><th>Agent</th></tr></thead><tbody id="smsBody"></tbody></table></div>
+  </div>
+</section>
+
+<section id="numbers" class="view">
+  <div class="section-head"><h2>Numbers Management</h2><button class="btn primary" onclick="demoAdd('number')">＋ Add Number</button></div>
+  <div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>Number</th><th>Label</th><th>Agent</th><th>Status</th><th>Messages</th></tr></thead><tbody>
+  <tr><td>+92 300 1234567</td><td>Marketing</td><td>Agent 01</td><td><span class="badge success">Active</span></td><td>482</td></tr>
+  <tr><td>+92 301 7654321</td><td>Support</td><td>Agent 02</td><td><span class="badge success">Active</span></td><td>319</td></tr>
+  <tr><td>+92 302 5550199</td><td>Alerts</td><td>Agent 03</td><td><span class="badge pending">Paused</span></td><td>127</td></tr>
+  </tbody></table></div></div>
+</section>
+
+<section id="agents" class="view">
+  <div class="section-head"><h2>Agents</h2><button class="btn primary" onclick="demoAdd('agent')">＋ Add Agent</button></div>
+  <div class="grid stats"><div class="card"><small>Active Agents</small><strong>8</strong></div><div class="card"><small>Online</small><strong>5</strong></div><div class="card"><small>Today Messages</small><strong>312</strong></div><div class="card"><small>Avg. Delivery</small><strong>94%</strong></div></div>
+</section>
+
+<section id="reports" class="view">
+  <div class="section-head"><h2>Reports & Analytics</h2><button class="btn light" onclick="exportCSV()">⬇ Export Current CSV</button></div>
+  <div class="card"><h3>Weekly message volume</h3><div class="chart"><div class="bar" style="height:40%"><span>W1</span></div><div class="bar" style="height:68%"><span>W2</span></div><div class="bar" style="height:53%"><span>W3</span></div><div class="bar" style="height:85%"><span>W4</span></div></div></div>
+</section>
+
+<section id="users" class="view">
+  <div class="section-head"><h2>Users & Roles</h2><button class="btn primary" onclick="demoAdd('user')">＋ Add User</button></div>
+  <div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead><tbody>
+  <tr><td>Admin</td><td>admin@example.com</td><td><span class="badge info">Administrator</span></td><td><span class="badge success">Active</span></td></tr>
+  <tr><td>Agent 01</td><td>agent01@example.com</td><td><span class="badge info">Agent</span></td><td><span class="badge success">Active</span></td></tr>
+  </tbody></table></div></div>
+</section>
+
+<section id="settings" class="view">
+  <div class="section-head"><h2>Settings</h2></div>
+  <div class="card" style="max-width:700px">
+    <label>Panel Name</label><input class="field" value="Ahmad SMS CDR Panel" style="margin:8px 0 15px">
+    <label>Default timezone</label><select class="field" style="margin:8px 0 15px"><option>Asia/Karachi</option><option>UTC</option></select>
+    <label>Dark mode</label><button class="btn light" onclick="toggleDark()" style="display:block;margin-top:8px">🌙 Toggle Theme</button>
+  </div>
+</section>
+
+</div></main></div>
+
+<script>
+const rows=[
+['2026-08-09 12:10','+92 300 1234567','AHMAD','Welcome to Ahmad Online Hub','Delivered','Agent 01'],
+['2026-08-09 11:45','+92 301 7654321','AHMAD','Your order has been received','Delivered','Agent 02'],
+['2026-08-09 10:22','+92 302 5550199','AHMAD','Your verification code is ******','Pending','Agent 03'],
+['2026-08-08 19:30','+92 300 7778899','AHMAD','Service update notification','Failed','Agent 01'],
+['2026-08-08 17:05','+92 303 1122334','AHMAD','Thank you for contacting us','Delivered','Agent 04'],
+['2026-08-08 13:18','+92 304 4455667','AHMAD','Your report is ready','Delivered','Agent 02']
+];
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function renderRows(data=rows){
+ document.getElementById('smsBody').innerHTML=data.map(r=>{
+ const cls=r[4]==='Delivered'?'success':r[4]==='Pending'?'pending':'failed';
+ return `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td><span class="badge ${cls}">${esc(r[4])}</span></td><td>${esc(r[5])}</td></tr>`;
+ }).join('')||'<tr><td colspan="6" class="empty">No records found</td></tr>';
+}
+function filterRows(){
+ const q=document.getElementById('q').value.toLowerCase(),st=document.getElementById('status').value,from=document.getElementById('from').value,to=document.getElementById('to').value;
+ renderRows(rows.filter(r=>{
+  const text=r.join(' ').toLowerCase(),date=r[0].slice(0,10);
+  return (!q||text.includes(q))&&(!st||r[4]===st)&&(!from||date>=from)&&(!to||date<=to);
+ }));
+}
+function resetFilters(){['q','from','to'].forEach(x=>document.getElementById(x).value='');document.getElementById('status').value='';renderRows()}
+function exportCSV(){
+ const head=['Date/Time','Number','Sender','Message','Status','Agent'];
+ const data=[head,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\\n');
+ const blob=new Blob([data],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ahmad-sms-cdr-report.csv';a.click();
+}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+ document.getElementById(b.dataset.view).classList.add('active');
+ document.getElementById('pageTitle').textContent=b.textContent.replace(/^[^A-Za-z]+/,'').trim();
+ document.getElementById('sidebar').classList.remove('open');
+});
+function toggleMenu(){document.getElementById('sidebar').classList.toggle('open')}
+function toggleDark(){
+ const dark=document.body.dataset.dark==='1';
+ document.body.dataset.dark=dark?'0':'1';
+ if(!dark){document.documentElement.style.setProperty('--bg','#0b1120');document.documentElement.style.setProperty('--panel','#111827');document.documentElement.style.setProperty('--text','#e5e7eb');document.documentElement.style.setProperty('--line','#263244')}
+ else{location.reload()}
+}
+function demoAdd(type){alert(`Demo: Add ${type}. Connect this button to your authorized backend/database for real records.`)}
+
+function clearApiToken(){
+  const el=document.getElementById('apiToken'); if(el) el.value='';
+  const out=document.getElementById('apiResult'); if(out) out.textContent='Token cleared from the form.';
+}
+function isoLocal(id){
+  const v=document.getElementById(id).value;
+  if(!v) return '';
+  return v.replace('T',' ');
+}
+function apiParams(){
+  const p=new URLSearchParams();
+  const token=document.getElementById('apiToken').value.trim();
+  if(token) p.set('token',token);
+  const dt1=isoLocal('apiDt1'), dt2=isoLocal('apiDt2');
+  const records=document.getElementById('apiRecords').value;
+  const filternum=document.getElementById('apiFilterNum').value.trim();
+  if(dt1)p.set('dt1',dt1); if(dt2)p.set('dt2',dt2);
+  if(records)p.set('records',records); if(filternum)p.set('filternum',filternum);
+  return p;
+}
+async function testStatsAPI(){
+  const out=document.getElementById('apiResult');
+  const url=document.getElementById('apiUrl').value.trim();
+  const method=document.getElementById('apiMethod').value;
+  if(!url){out.textContent='Enter an API URL.';return;}
+  const p=apiParams();
+  out.textContent='Loading API...';
+  try{
+    let response;
+    if(method==='GET'){
+      response=await fetch(url+(url.includes('?')?'&':'?')+p.toString(),{method:'GET',headers:{'Accept':'application/json'}});
+    }else{
+      response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},body:p.toString()});
+    }
+    const text=await response.text();
+    let pretty=text;
+    try{pretty=JSON.stringify(JSON.parse(text),null,2)}catch(e){}
+    out.textContent=`HTTP ${response.status}\n\n${pretty}`;
+    if(!response.ok) return;
+    try{
+      const data=JSON.parse(text);
+      populateFromApi(data);
+    }catch(e){}
+  }catch(err){
+    out.textContent='Request failed.\n\n'+err.message+'\n\nIf the API is reachable but the browser reports CORS, use a secure server-side proxy/backend. Do not expose your API token in public frontend code.';
+  }
+}
+function findArray(obj){
+  if(Array.isArray(obj)) return obj;
+  if(!obj||typeof obj!=='object') return null;
+  for(const k of ['data','records','results','rows','messages','items']){
+    if(Array.isArray(obj[k])) return obj[k];
+  }
+  return null;
+}
+function populateFromApi(data){
+  const arr=findArray(data);
+  if(!arr||!arr.length) return;
+  const mapped=arr.map(x=>{
+    if(Array.isArray(x)) return x;
+    return [
+      x.datetime||x.date_time||x.date||x.time||'',
+      x.number||x.phone||x.msisdn||x.to||x.destination||'',
+      x.sender||x.from||x.source||'',
+      x.message||x.msg||x.text||'',
+      x.status||x.delivery_status||'',
+      x.agent||x.user||x.username||''
+    ];
+  });
+  const clean=mapped.map(r=>[r[0],r[1],r[2],r[3],r[4]||'Pending',r[5]]);
+  renderRows(clean);
+}
+
+renderRows();
+</script>
+</body>
+</html>
